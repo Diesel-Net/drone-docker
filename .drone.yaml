@@ -14,12 +14,7 @@ steps:
       - git clone --recursive https://github.com/drone/drone.git drone
       - (cd drone && git checkout $(cat ../VERSION))
 
-  # - name: apply-patch
-  #   image: alpine:3.11
-  #   commands:
-  #     - patch drone/docker/Dockerfile.server.linux.amd64 < Dockerfile.server.linux.amd64.patch
-
-  - name: Compile Drone OSS (--tags 'oss nolimit')
+  - name: Compile Drone OSS
     image: golang:1.14
     environment:
       CGO_ENABLED: 1
@@ -28,8 +23,12 @@ steps:
       GOOS: linux
       GOPROXY: https://proxy.golang.org,direct
     commands:
+      - version=''
+      - if [ $DRONE_BRANCH = 'development' ]; then version='-development'; fi
+      - echo $version
       - (cd drone && ../build.sh "oss nolimit")
-      - (cd drone && ../tags.sh) > .tags
+      - (cd drone && ../tags.sh $version ) > .tags
+      - cat .tags
 
   - name: Docker build & push
     image: plugins/docker
@@ -46,12 +45,13 @@ steps:
 trigger:
   branch:
     - development
+    - stable
   event:
     - push
 
 ---
 kind: pipeline
-name: Build Drone Enterprise (no limits)
+name: Build Drone Enterprise (without limits)
 
 platform:
   os: linux
@@ -65,12 +65,7 @@ steps:
       - git clone --recursive https://github.com/drone/drone.git drone
       - (cd drone && git checkout $(cat ../VERSION))
 
-  # - name: apply-patch
-  #   image: alpine:3.11
-  #   commands:
-  #     - patch drone/docker/Dockerfile.server.linux.amd64 < Dockerfile.server.linux.amd64.patch
-
-  - name: Compile Drone Enterprise (--tags 'nolimit')
+  - name: Compile Drone Enterprise
     image: golang:1.14
     environment:
       CGO_ENABLED: 1
@@ -79,8 +74,11 @@ steps:
       GOOS: linux
       GOPROXY: https://proxy.golang.org,direct
     commands:
-      - (cd drone && ../build.sh nolimit)
-      - (cd drone && ../tags.sh) > .tags
+      - version=''
+      - if [ $DRONE_BRANCH = 'development' ]; then version='-development'; fi
+      - echo $version
+      - (cd drone && ../build.sh "oss nolimit")
+      - (cd drone && ../tags.sh $version ) > .tags
 
   - name: Docker build & push
     image: plugins/docker
@@ -96,6 +94,7 @@ steps:
 
 trigger:
   branch:
+    - development
     - stable
   event:
     - push
