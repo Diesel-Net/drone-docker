@@ -33,6 +33,7 @@ steps:
   - name: Docker build & push
     image: plugins/docker
     settings:
+      mirror: proxy.docker.nexus.diesel.net
       registry: docker.nexus.diesel.net
       username:
         from_secret: nexus_user
@@ -83,6 +84,7 @@ steps:
   - name: Docker build & push
     image: plugins/docker
     settings:
+      mirror: proxy.docker.nexus.diesel.net
       registry: docker.nexus.diesel.net
       username:
         from_secret: nexus_user
