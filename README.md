@@ -5,5 +5,7 @@
 Compiled and containerized docker images for Drone CI.
 
 ### Versions
-- OSS (compiled with --tags 'oss nolimit')
-- Enterprise Free (compiled with --tags 'nolimit')
+- OSS
+  - compiled with --tags 'oss nolimit'
+- Enterprise Free
+  - compiled with --tags 'nolimit'
